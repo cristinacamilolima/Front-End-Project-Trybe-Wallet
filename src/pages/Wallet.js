@@ -7,3 +7,4 @@ class Wallet extends React.Component {
 }
 
 export default Wallet;
+// Esse reducer será responsável por tratar o todas as informações relacionadas as despesas

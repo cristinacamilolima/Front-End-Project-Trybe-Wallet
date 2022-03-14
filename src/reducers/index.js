@@ -1,3 +1,11 @@
+import { combineReducers } from 'redux';
+import user from './user';
+import wallet from './wallet';
+
+const fontReducer = combineReducers({ user, wallet });
+
+export default fontReducer;
+
 // import user from './user';
 // import wallet from './wallet';
 

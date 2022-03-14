@@ -1,10 +1,17 @@
 import React from 'react';
+import Header from './Header';
 
 class Wallet extends React.Component {
   render() {
-    return <div>TrybeWallet</div>;
+    return (
+
+      <div>
+        <Header />
+      </div>
+    );
   }
 }
 
 export default Wallet;
+
 // Esse reducer será responsável por tratar o todas as informações relacionadas as despesas

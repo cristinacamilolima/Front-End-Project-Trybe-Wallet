@@ -7,6 +7,7 @@ class Wallet extends React.Component {
 
       <div>
         <Header />
+
       </div>
     );
   }

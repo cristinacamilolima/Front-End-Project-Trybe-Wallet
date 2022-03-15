@@ -1,5 +1,9 @@
-import { SET_USER } from '../reducers/user';
+export const CREATE_USER = 'CREATE_USER';
 
-const createUser = (email) => ({ type: SET_USER, payload: email });
+export const REQUEST_CURRENCIES = 'REQUEST_CURRENCIES';
+export const GET_CURRENCIES_SUCESS = 'GET_CURRENCIES_SUCESS';
+export const GET_CURRENCIES_ERROR = 'GET_CURRENCIES_ERROR';
 
-export default createUser;
+export const ADD_EXPENSIES = 'ADD_EXPENSIES';
+export const UPDATE_EXPENSIES = 'UPDATE_EXPENCIES';
+export const REMOVE_EXPENCIES = 'REMOVE_EXPENCIES';

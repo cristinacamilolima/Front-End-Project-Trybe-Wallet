@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import deleteExpenseAction from '../actions/deleteExpense';
 
 // fonte para estruturação de tabela https://www.infowester.com/tagsdesconhecidas2.php //
 
 class Table extends Component {
+  handleDeleteExpense(id) {
+    const { deleteExpense } = this.props;
+    deleteExpense(id);
+  }
+
   render() {
     const { expenses } = this.props;
     return (
@@ -44,7 +50,15 @@ class Table extends Component {
                       .toFixed(2)}
                   </td>
                   <td>Real</td>
-                  <td>Editar/Excluir</td>
+                  <td>
+                    <button
+                      onClick={ () => this.handleDeleteExpense(expense.id) }
+                      type="button"
+                      data-testid="delete-btn"
+                    >
+                      Excluir
+                    </button>
+                  </td>
                 </tr>
               ))
             }
@@ -55,12 +69,17 @@ class Table extends Component {
   }
 }
 
-Table.propTypes = {
-  expenses: PropTypes.arrayOf.isRequired,
-};
-
 const mapStateToProps = (state) => ({
   expenses: state.wallet.expenses,
 });
 
-export default connect(mapStateToProps)(Table);
+const mapDispatchToProps = (dispatch) => ({
+  deleteExpense: (id) => dispatch(deleteExpenseAction(id)),
+});
+
+Table.propTypes = {
+  expenses: PropTypes.arrayOf.isRequired,
+  deleteExpense: PropTypes.func.isRequired,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Table);

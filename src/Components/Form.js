@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import getCurrencySucess from '../actions/wallet';
 import getCurrencyPrice from '../services/currencyPriceAPI';
+import Table from './Table';
+import editExpenseAction from '../actions/editExpense';
+import setExchangeAction from '../actions/setExchange';
 
 class Form extends Component {
   state = {
@@ -10,29 +13,34 @@ class Form extends Component {
     value: '',
     description: '',
     currency: 'USD',
-    method: '',
-    tag: '',
-    currencies: [],
+    method: 'Dinheiro',
+    tag: 'Alimentação',
     exchangeRates: {},
+    btnValue: 'Adicionar despesa',
+    shouldEdit: false,
   }
 
   async componentDidMount() {
+    const { setexchange } = this.props;
     const currencyPrice = await getCurrencyPrice();
-
-    const currenciesCoin = Object.keys(currencyPrice);
-    this.setState({ currencies: [...currenciesCoin] });
+    setexchange(Object.keys(currencyPrice));
   }
 
   handleChange = ({ target: { name, value } }) => {
+    if (name === 'select') {
+      this.setState(() => ({
+        currency: value,
+      }));
+      return;
+    }
     this.setState(() => ({
       [name]: value,
     }));
   }
 
-  handleClick = async (event) => {
-    event.preventDefault();
-
+  handleClick = async () => {
     const currencyPrices = await getCurrencyPrice();
+    this.setState(() => ({ exchangeRates: currencyPrices }));
     const { addexpenses } = this.props;
     const {
       id,
@@ -43,7 +51,6 @@ class Form extends Component {
       tag,
       exchangeRates,
     } = this.state;
-
     const stateObj = {
       id,
       value,
@@ -51,20 +58,70 @@ class Form extends Component {
       currency,
       method,
       tag,
-      exchangeRates: currencyPrices,
+      exchangeRates,
     };
-    addexpenses(stateObj);
 
-    this.setState({
+    addexpenses(stateObj);
+    this.setState(() => ({
       id: (id + 1),
       value: '',
       description: '',
-      currency: 'EUR',
+      currency: 'USD',
       method: '',
       tag: '',
       exchangeRates,
-    });
+    }));
   }
+
+  handleEditExpense = () => {
+    const { editExpense } = this.props;
+    const {
+      value,
+      description,
+      currency,
+      method,
+      tag,
+      exchangeRates,
+      id,
+    } = this.state;
+    const newEditExpense = {
+      id,
+      value,
+      description,
+      currency,
+      method,
+      tag,
+      exchangeRates,
+    };
+    editExpense(id, newEditExpense);
+    this.setState(() => (
+      { value: '', description: '', btnValue: 'Adicionar despesa', shouldEdit: false }));
+  };
+
+  flowAddOrEdit = async () => {
+    const { shouldEdit } = this.state;
+    if (!shouldEdit) {
+      this.handleClick();
+    } else {
+      this.handleEditExpense();
+    }
+  };
+
+  expenseFormEdit = (id) => {
+    const { expenses } = this.props;
+    const expense = expenses.find((expenseItem) => expenseItem.id === id);
+    this.setState(() => ({
+      value: expense.value,
+      description: expense.description,
+      currency: expense.currency,
+      method: expense.method,
+      tag: expense.tag,
+      btnValue: 'Editar despesa',
+      exchangeRates: expense.exchangeRates,
+      shouldEdit: true,
+      id,
+    }));
+  };
 
   render() {
     const {
@@ -73,8 +130,10 @@ class Form extends Component {
       currency,
       method,
       tag,
-      currencies,
+      btnValue,
     } = this.state;
+
+    const { currencies } = this.props;
 
     return (
       <div>
@@ -112,7 +171,6 @@ class Form extends Component {
               value={ currency }
               onChange={ this.handleChange }
             >
-              <option value="" defaultValue disabled hidden>Selecione a Moeda</option>
               {
                 currencies.filter((curr) => curr !== 'USDT').map((curr) => (
                   <option
@@ -159,10 +217,11 @@ class Form extends Component {
             </select>
           </label>
 
-          <button type="button" onClick={ this.handleClick }>
-            Adicionar despesa
+          <button type="button" onClick={ this.flowAddOrEdit }>
+            { btnValue }
           </button>
         </form>
+        <Table edit={ this.expenseFormEdit } />
       </div>
     );
   }
@@ -170,10 +229,21 @@ class Form extends Component {
 
 const mapDispatchToProps = (dispatch) => ({
   addexpenses: (state) => dispatch(getCurrencySucess(state)),
+  editExpense: (id, updates) => dispatch(editExpenseAction(id, updates)),
+  setexchange: (currencies) => dispatch(setExchangeAction(currencies)),
+});
+
+const mapStateToProps = (state) => ({
+  expenses: state.wallet.expenses,
+  currencies: state.wallet.currencies,
 });
 
 Form.propTypes = {
   addexpenses: PropTypes.func.isRequired,
+  expenses: PropTypes.arrayOf(PropTypes.object).isRequired,
+  editExpense: PropTypes.func.isRequired,
+  currencies: PropTypes.arrayOf(PropTypes.string).isRequired,
+  setexchange: PropTypes.func.isRequired,
 };
 
-export default connect(null, mapDispatchToProps)(Form);
+export default connect(mapStateToProps, mapDispatchToProps)(Form);

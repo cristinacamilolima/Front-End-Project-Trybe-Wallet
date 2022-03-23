@@ -12,7 +12,7 @@ class Table extends Component {
   }
 
   render() {
-    const { expenses } = this.props;
+    const { expenses, edit } = this.props;
     return (
       <div>
         <table>
@@ -38,7 +38,7 @@ class Table extends Component {
                   <td>{expense.tag}</td>
                   <td>{expense.method}</td>
                   <td>{Number(expense.value).toFixed(2)}</td>
-                  <td>{expense.exchangeRates[expense.currency].name}</td>
+                  <td>{expense.exchangeRates[expense.currency].name.split('/')[0]}</td>
                   <td>
                     {Number(expense.exchangeRates[expense.currency].ask)
                       .toFixed(2)}
@@ -52,10 +52,11 @@ class Table extends Component {
                   <td>Real</td>
                   <td>
                     <button
+                      onClick={ () => edit(expense.id) }
                       type="button"
                       data-testid="edit-btn"
                     >
-                      Editar despesa
+                      Editar
                     </button>
                     <button
                       onClick={ () => this.handleDeleteExpense(expense.id) }
@@ -86,6 +87,7 @@ const mapDispatchToProps = (dispatch) => ({
 Table.propTypes = {
   expenses: PropTypes.arrayOf.isRequired,
   deleteExpense: PropTypes.func.isRequired,
+  edit: PropTypes.func.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Table);
